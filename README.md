@@ -674,7 +674,62 @@ python embedding_from_esmfold.py \
 * **-seq**   
   protein sequences, comma-concatenation for multi proteins.
 
-## 3) Construct dataset for model building
+## 3)构建模型
+构建模型必需下面几种文件
+1.包含所有序列的fasta文件
+2.embs文件
+3.metadata.csv
+4.train,dev,test分开的csv
+5.tfrecords
+6.subword
+
+## 1.fasta文件
+fasta文件来自多个子文件，用XXX脚本合并，确保是序列名Label_Source_number这种格式，方便下面整理。
+## 2.embs
+不用多说，esm_embedding.sh构建，但现在强制使用esmv2，看后面可不可以换其他interface model. GPU型，4卡A800 2042作为起始，一开始慢点
+## 3.metadata.csv
+create_dataset_csv.py获取
+```
+python create_dataset_csv.py /ssdfs/datahome/u14169/ViCapsid/Lucaprot/Trained.fasta /share/home/u14169/data/LSH/ViCapsid/Lucaprot/Minitest/dataset/CaViOt/protein/multi_class/Trained_embed_fasta_id_2_idx.csv /share/home/u14169/data/LSH/ViCapsid/Lucaprot/Minitest/dataset/CaViOt/protein/multi_class/metadata.csv
+```
+### 4.分开的csv
+Seperatedatasets.py获取
+```
+python /share/home/u14169/data/LSH/ViCapsid/Lucaprot/Minitest/dataset/CaViOt/protein/multi_class/Seperatedatasets.py
+```
+### 5.tfrecords
+Get_tfrecords.sh获取，CPU型
+```
+Get_tfrecords.sh
+```
+### 6.subword
+subword.sh获取，cpu型，放在ssd中，32cores即可
+
+最后格式like
+/share/home/u14169/data/LSH/ViCapsid/Lucaprot/Minitest/dataset/CaViOt/protein/multi_class
+├── Capsid.fasta
+├── Capsid_protein_codes_20k.txt
+├── concat.py
+├── dev_with_pdb_emb.csv
+├── embs
+├── label.txt
+├── metadata.csv
+├── NoCapsid_virus50_3.fasta
+├── Renamefasta.py
+├── Seperatedatasets.py
+├── test_with_pdb_emb.csv
+├── tfrecords
+├── tmp
+├── Trained.back
+├── Trained_embed_fasta_id_2_idx.csv
+├── Trained.fasta
+├── Trained.txt
+├── train_with_pdb_emb.csv
+└── uniref50_2.fasta
+
+
+
+
 Construct your dataset and randomly divide the dataset into training, validation, and testing sets with a specified ratio, and save the three sets in ```dataset/${dataset_name}/${dataset_type}/${task_type}```, including train_*.csv, dev_*.csv, test_*.csv.
 
 The file format can be .csv (must include the header ) or .txt (does not need to have the header).
